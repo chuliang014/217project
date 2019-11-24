@@ -1,6 +1,7 @@
 # 217project
 
 #How to run
+
 nvcc parboil.o file.o args.o main.cu -o zclgpu
 
 ./zclgpu -i datasets/small/input/32_32_32_dataset.bin -o zcloutput.bin
