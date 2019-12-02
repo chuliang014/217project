@@ -32,7 +32,9 @@ __global__ void computeQ_GPU(int numK, int kGlobalIndex, float* x, float* y, flo
         __shared__ float s_x,s_y,s_z,s_Qr,s_Qi;
 
         int xIndex = blockIdx.x * K_Q_BLOCK_SIZE + threadIdx.x;
-           
+        
+        
+
         s_x = x[xIndex];
         s_y = y[xIndex];
         s_z = z[xIndex];
@@ -59,14 +61,14 @@ void ComputePhiMagGPU(int numK, float* d_phiR, float* d_phiI, float* d_phiMag){
 }
 
 void computeQGPU(int numK, int numX,float* d_x, float* d_y, float* d_z,
-    kValues* kVal,float* d_Qr, float* d_Qi){
+    kValues* kVals,float* d_Qr, float* d_Qi){
         int gridQ = (numK -1) / K_Q_K_ELEMS_PER_GRID + 1;
         int blockQ = (numX - 1) / K_Q_BLOCK_SIZE + 1;
         dim3 DimQBlock(K_Q_BLOCK_SIZE, 1);
         dim3 DimQGrid(blockQ,1);
         for(int i = 0; i < gridQ; i++){
             int QGridBase = i * K_Q_K_ELEMS_PER_GRID;
-            kValues * kValsTile = kVal + QGridBase;
+            kValues* kValsTile = kVals + QGridBase;
             int num = MIN(K_Q_K_ELEMS_PER_GRID, numK - QGridBase);
             cudaMemcpyToSymbol(kVal, kValsTile, num * sizeof(kValues), 0);
             computeQ_GPU<<<DimQGrid, DimQBlock>>>(numK,QGridBase,d_x,d_y,d_z,d_Qr,d_Qi);
