@@ -30,7 +30,7 @@ __global__ void computeQ_GPU(int numK, int kGlobalIndex, float* x, float* y, flo
         int xIndex = blockIdx.x * K_Q_BLOCK_SIZE + threadIdx.x;
 
         int indexK = 0;
-        for(indexK=0; indexK < K_Q_K_ELEMS_PER_GRID; indexK++){
+        for(indexK=0; indexK < K_Q_K_ELEMS_PER_GRID && kGlobalIndex < numK; indexK++, kGlobalIndex++){
             float expArg = PIx2 * (kVal[indexK].Kx * x[xIndex] +
                 kVal[indexK].Ky * y[xIndex] +
                 kVal[indexK].Kz * z[xIndex]);
@@ -55,7 +55,7 @@ void computeQGPU(int numK, int numX,float* d_x, float* d_y, float* d_z,
         dim3 DimQGrid(blockQ,1);
         for(int i = 0; i < gridQ; i++){
             int QGridBase = i * K_Q_K_ELEMS_PER_GRID;
-            kValues * kValsTile = kVal + QGridBase;
+            kValues* kValsTile = kVal + QGridBase;
             computeQ_GPU<<<DimQGrid, DimQBlock>>>(numK,QGridBase,d_x,d_y,d_z,d_Qr,d_Qi,kValsTile);
         }
     }

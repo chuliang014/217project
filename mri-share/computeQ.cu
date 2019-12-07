@@ -37,7 +37,7 @@ __global__ void computeQ_GPU(int numK, int kGlobalIndex, float* x, float* y, flo
         s_Qr = Qr[xIndex];
         s_Qi = Qi[xIndex];
         int indexK = 0;
-        for(indexK=0; indexK < K_Q_K_ELEMS_PER_GRID; indexK++){
+        for(indexK=0; indexK < K_Q_K_ELEMS_PER_GRID && kGlobalIndex < numK; indexK++,kGlobalIndex++){
             float expArg = PIx2 * (kVal[indexK].Kx * s_x +
                 kVal[indexK].Ky * s_y +
                 kVal[indexK].Kz * s_z);
